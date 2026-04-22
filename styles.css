@@ -294,6 +294,9 @@ code {
 .portal-card {
   display: grid;
   gap: 0.9rem;
+  padding: 1.25rem;
+  border-radius: 26px;
+  overflow: hidden;
 }
 
 .portal-card h2,
