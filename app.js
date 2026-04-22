@@ -43,7 +43,6 @@ const state = {
   records: [],
   editingId: null,
   isLoadingRecords: false,
-  selectedReportTab: "weekly",
   selectedWeekStart: getStartOfWeek(new Date()),
   selectedMonthDate: getStartOfMonth(new Date())
 };
@@ -54,6 +53,9 @@ const refs = {
   appShell: document.querySelector("#app-shell"),
   authForm: document.querySelector("#auth-form"),
   authEmail: document.querySelector("#auth-email"),
+  authPassword: document.querySelector("#auth-password"),
+  signInBtn: document.querySelector("#sign-in-btn"),
+  signUpBtn: document.querySelector("#sign-up-btn"),
   sendLinkBtn: document.querySelector("#send-link-btn"),
   refreshSessionBtn: document.querySelector("#refresh-session-btn"),
   signOutBtn: document.querySelector("#sign-out-btn"),
@@ -110,20 +112,19 @@ async function init() {
   populateCategoryOptions();
   bindEvents();
   fillDefaultDateTime();
-  setReportTab(state.selectedReportTab);
   render();
 
   state.config = getSupabaseConfig();
   state.isSetupReady = Boolean(state.config.supabaseUrl && state.config.supabaseAnonKey);
 
   if (!state.isSetupReady) {
-    refs.setupPanel.classList.remove("hidden");
+    refs.setupPanel?.classList.remove("hidden");
     setAuthStatus("请先完成 Supabase 配置，当前页面还不能登录。", "warn");
     updateSyncCard();
     return;
   }
 
-  refs.setupPanel.classList.add("hidden");
+  refs.setupPanel?.classList.add("hidden");
   state.supabase = createClient(state.config.supabaseUrl, state.config.supabaseAnonKey, {
     auth: {
       persistSession: true,
@@ -156,33 +157,35 @@ async function init() {
 }
 
 function bindEvents() {
-  refs.authForm.addEventListener("submit", handleMagicLinkSignIn);
-  refs.refreshSessionBtn.addEventListener("click", hydrateSession);
-  refs.signOutBtn.addEventListener("click", signOut);
-  refs.analyzeBtn.addEventListener("click", analyzeInput);
-  refs.resetBtn.addEventListener("click", resetComposer);
-  refs.form.addEventListener("submit", handleSaveRecord);
-  refs.exportBtn.addEventListener("click", exportCsv);
-  refs.seedBtn.addEventListener("click", seedExampleRecords);
-  refs.reportTabWeekly.addEventListener("click", () => setReportTab("weekly"));
-  refs.reportTabMonthly.addEventListener("click", () => setReportTab("monthly"));
-  refs.weeklyPrevBtn.addEventListener("click", () => {
+  refs.authForm?.addEventListener("submit", handlePasswordSignIn);
+  refs.signUpBtn?.addEventListener("click", handlePasswordSignUp);
+  refs.sendLinkBtn?.addEventListener("click", handleMagicLinkSignIn);
+  refs.refreshSessionBtn?.addEventListener("click", hydrateSession);
+  refs.signOutBtn?.addEventListener("click", signOut);
+  refs.analyzeBtn?.addEventListener("click", analyzeInput);
+  refs.resetBtn?.addEventListener("click", resetComposer);
+  refs.form?.addEventListener("submit", handleSaveRecord);
+  refs.exportBtn?.addEventListener("click", exportCsv);
+  refs.seedBtn?.addEventListener("click", seedExampleRecords);
+  refs.reportTabWeekly?.addEventListener("click", () => setReportTab("weekly"));
+  refs.reportTabMonthly?.addEventListener("click", () => setReportTab("monthly"));
+  refs.weeklyPrevBtn?.addEventListener("click", () => {
     state.selectedWeekStart = addDays(state.selectedWeekStart, -7);
     renderReports();
   });
-  refs.weeklyNextBtn.addEventListener("click", () => {
+  refs.weeklyNextBtn?.addEventListener("click", () => {
     state.selectedWeekStart = addDays(state.selectedWeekStart, 7);
     renderReports();
   });
-  refs.monthlyPrevBtn.addEventListener("click", () => {
+  refs.monthlyPrevBtn?.addEventListener("click", () => {
     state.selectedMonthDate = addMonths(state.selectedMonthDate, -1);
     renderReports();
   });
-  refs.monthlyNextBtn.addEventListener("click", () => {
+  refs.monthlyNextBtn?.addEventListener("click", () => {
     state.selectedMonthDate = addMonths(state.selectedMonthDate, 1);
     renderReports();
   });
-  refs.entryInput.addEventListener("keydown", (event) => {
+  refs.entryInput?.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       analyzeInput();
     }
@@ -190,6 +193,9 @@ function bindEvents() {
 
   document.querySelectorAll(".sample-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
+      if (!refs.entryInput) {
+        return;
+      }
       refs.entryInput.value = chip.dataset.sample || "";
       if (state.user) {
         analyzeInput();
@@ -199,7 +205,10 @@ function bindEvents() {
 }
 
 function setReportTab(tab) {
-  state.selectedReportTab = tab;
+  if (!refs.reportTabWeekly || !refs.reportTabMonthly || !refs.weeklyPanel || !refs.monthlyPanel) {
+    return;
+  }
+
   refs.reportTabWeekly.classList.toggle("is-active", tab === "weekly");
   refs.reportTabMonthly.classList.toggle("is-active", tab === "monthly");
   refs.weeklyPanel.classList.toggle("hidden", tab !== "weekly");
@@ -235,12 +244,14 @@ async function hydrateSession() {
     await loadRecords({ importLegacy: true });
   } else {
     render();
-    setAuthStatus("当前未登录。输入邮箱后发送魔法链接即可。", "idle");
+    setAuthStatus("当前未登录。你可以直接输入邮箱和密码登录，也可以使用魔法链接。", "idle");
   }
 }
 
 async function handleMagicLinkSignIn(event) {
-  event.preventDefault();
+  if (event) {
+    event.preventDefault();
+  }
 
   if (!state.supabase) {
     setAuthStatus("请先完成 Supabase 配置。", "warn");
@@ -274,6 +285,92 @@ async function handleMagicLinkSignIn(event) {
   setAuthStatus("登录链接已发送，请去邮箱打开，再回到这个页面。", "success");
 }
 
+async function handlePasswordSignIn(event) {
+  event.preventDefault();
+
+  if (!state.supabase) {
+    setAuthStatus("请先完成 Supabase 配置。", "warn");
+    return;
+  }
+
+  const email = refs.authEmail.value.trim();
+  const password = refs.authPassword?.value || "";
+
+  if (!email) {
+    setAuthStatus("请输入邮箱地址。", "warn");
+    return;
+  }
+
+  if (!password) {
+    setAuthStatus("请输入密码。", "warn");
+    return;
+  }
+
+  refs.signInBtn.disabled = true;
+  setAuthStatus("正在登录，请稍候…", "idle");
+
+  const { error } = await state.supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  refs.signInBtn.disabled = false;
+
+  if (error) {
+    console.error(error);
+    setAuthStatus(`密码登录失败：${error.message}`, "warn");
+    return;
+  }
+
+  setAuthStatus("登录成功，正在同步你的账本。", "success");
+}
+
+async function handlePasswordSignUp() {
+  if (!state.supabase) {
+    setAuthStatus("请先完成 Supabase 配置。", "warn");
+    return;
+  }
+
+  const email = refs.authEmail.value.trim();
+  const password = refs.authPassword?.value || "";
+
+  if (!email) {
+    setAuthStatus("请输入邮箱地址。", "warn");
+    return;
+  }
+
+  if (!password || password.length < 6) {
+    setAuthStatus("密码至少需要 6 位。", "warn");
+    return;
+  }
+
+  refs.signUpBtn.disabled = true;
+  setAuthStatus("正在注册账号，请稍候…", "idle");
+
+  const { data, error } = await state.supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: getRedirectUrl()
+    }
+  });
+
+  refs.signUpBtn.disabled = false;
+
+  if (error) {
+    console.error(error);
+    setAuthStatus(`注册失败：${error.message}`, "warn");
+    return;
+  }
+
+  if (data.session) {
+    setAuthStatus("注册成功，已自动登录。", "success");
+    return;
+  }
+
+  setAuthStatus("注册成功，请去邮箱完成确认，然后再回来用密码登录。", "success");
+}
+
 async function signOut() {
   if (!state.supabase) {
     return;
@@ -287,6 +384,9 @@ async function signOut() {
   }
 
   setAuthStatus("你已退出登录。", "success");
+  if (refs.authPassword) {
+    refs.authPassword.value = "";
+  }
 }
 
 function getRedirectUrl() {
@@ -295,30 +395,30 @@ function getRedirectUrl() {
 
 function updateAuthUi() {
   const isLoggedIn = Boolean(state.user);
-  refs.signOutBtn.classList.toggle("hidden", !isLoggedIn);
-  refs.guestPanel.classList.toggle("hidden", isLoggedIn || !state.isSetupReady);
-  refs.appShell.classList.toggle("hidden", !isLoggedIn);
+  refs.signOutBtn?.classList.toggle("hidden", !isLoggedIn);
+  refs.guestPanel?.classList.toggle("hidden", isLoggedIn || !state.isSetupReady);
+  refs.appShell?.classList.toggle("hidden", !isLoggedIn);
 
   if (!state.isSetupReady) {
-    refs.syncTitle.textContent = "待配置";
-    refs.currentUser.textContent = "未连接";
-    refs.syncState.textContent = "待配置";
-    refs.syncDescription.textContent = "先把 Supabase 项目地址和 anon key 填进 config.js，再启用登录和云同步。";
+    if (refs.syncTitle) refs.syncTitle.textContent = "待配置";
+    if (refs.currentUser) refs.currentUser.textContent = "未连接";
+    if (refs.syncState) refs.syncState.textContent = "待配置";
+    if (refs.syncDescription) refs.syncDescription.textContent = "先把 Supabase 项目地址和 anon key 填进 config.js，再启用登录和云同步。";
     return;
   }
 
   if (!isLoggedIn) {
-    refs.syncTitle.textContent = "未登录";
-    refs.currentUser.textContent = "匿名访客";
-    refs.syncState.textContent = "等待登录";
-    refs.syncDescription.textContent = "登录后，所有账目都会和当前邮箱账号绑定；同一账号跨设备登录会看到同一份账本。";
+    if (refs.syncTitle) refs.syncTitle.textContent = "未登录";
+    if (refs.currentUser) refs.currentUser.textContent = "匿名访客";
+    if (refs.syncState) refs.syncState.textContent = "等待登录";
+    if (refs.syncDescription) refs.syncDescription.textContent = "支持邮箱密码登录，魔法链接也可以作为备用方式；登录后同一账号跨设备会看到同一份账本。";
     return;
   }
 
-  refs.syncTitle.textContent = "已连接";
-  refs.currentUser.textContent = state.user.email || state.user.id;
-  refs.syncState.textContent = state.isLoadingRecords ? "同步中" : "已同步";
-  refs.syncDescription.textContent = "当前账本已和 Supabase 绑定。不同账号登录时，只会读取各自 user_id 对应的数据。";
+  if (refs.syncTitle) refs.syncTitle.textContent = "已连接";
+  if (refs.currentUser) refs.currentUser.textContent = state.user.email || state.user.id;
+  if (refs.syncState) refs.syncState.textContent = state.isLoadingRecords ? "同步中" : "已同步";
+  if (refs.syncDescription) refs.syncDescription.textContent = "当前账本已和 Supabase 绑定。不同账号登录时，只会读取各自 user_id 对应的数据。";
 }
 
 function updateSyncCard() {
@@ -326,6 +426,9 @@ function updateSyncCard() {
 }
 
 function populateCategoryOptions() {
+  if (!refs.category) {
+    return;
+  }
   refs.category.innerHTML = CATEGORY_OPTIONS.map(
     (category) => `<option value="${category}">${category}</option>`
   ).join("");
@@ -568,6 +671,9 @@ function extractPurpose(text, tokens) {
 }
 
 function fillForm(record, options = {}) {
+  if (!refs.type || !refs.amount || !refs.date || !refs.time || !refs.category || !refs.purpose || !refs.note) {
+    return;
+  }
   state.editingId = options.preserveId ? record.id : null;
   refs.type.value = record.type;
   refs.amount.value = record.amount ?? "";
@@ -579,18 +685,27 @@ function fillForm(record, options = {}) {
 }
 
 function fillDefaultDateTime() {
+  if (!refs.date || !refs.time) {
+    return;
+  }
   const now = new Date();
   refs.date.value = formatDateInput(now);
   refs.time.value = formatTimeInput(now);
 }
 
 function setStatus(message, tone) {
+  if (!refs.status) {
+    return;
+  }
   refs.status.textContent = message;
   refs.status.className = "status-card";
   refs.status.classList.add(`status-${tone || "idle"}`);
 }
 
 function setAuthStatus(message, tone) {
+  if (!refs.authStatus) {
+    return;
+  }
   refs.authStatus.textContent = message;
   refs.authStatus.className = "status-card";
   refs.authStatus.classList.add(`status-${tone || "idle"}`);
@@ -737,11 +852,15 @@ async function handleSaveRecord(event) {
 
 function resetComposer() {
   state.editingId = null;
-  refs.entryInput.value = "";
-  refs.form.reset();
+  if (refs.entryInput) {
+    refs.entryInput.value = "";
+  }
+  refs.form?.reset();
   populateCategoryOptions();
   fillDefaultDateTime();
-  refs.type.value = "expense";
+  if (refs.type) {
+    refs.type.value = "expense";
+  }
   setStatus("等待输入。点击“自动分析”后会把结果填入右侧表单。", "idle");
 }
 
@@ -753,6 +872,9 @@ function render() {
 }
 
 function renderStats() {
+  if (!refs.monthlyExpense || !refs.monthlyIncome || !refs.balanceTotal || !refs.recordCount) {
+    return;
+  }
   const currentMonth = formatMonthKey(new Date());
   let monthlyExpense = 0;
   let monthlyIncome = 0;
@@ -787,6 +909,9 @@ function renderReports() {
 }
 
 function renderWeeklyReport() {
+  if (!refs.weeklyRange || !refs.weeklySummary || !refs.weeklyDailyList || !refs.weeklyCategoryList || !refs.weeklyRecordsList) {
+    return;
+  }
   state.selectedWeekStart = getStartOfWeek(state.selectedWeekStart);
   const weekStart = state.selectedWeekStart;
   const weekEnd = addDays(weekStart, 6);
@@ -818,6 +943,9 @@ function renderWeeklyReport() {
 }
 
 function renderMonthlyReport() {
+  if (!refs.monthlyRange || !refs.monthlySummary || !refs.monthlyCategoryList || !refs.monthlyWeekList || !refs.monthlyDailyList || !refs.monthlyRecordsList || !refs.trendList) {
+    return;
+  }
   state.selectedMonthDate = getStartOfMonth(state.selectedMonthDate);
   const monthStart = state.selectedMonthDate;
   const monthEnd = getEndOfMonth(monthStart);
@@ -1106,6 +1234,9 @@ function renderReportRecordList(target, records, emptyMessage) {
 }
 
 function renderRecords() {
+  if (!refs.recordsList) {
+    return;
+  }
   if (!state.records.length) {
     refs.recordsList.innerHTML = '<div class="empty-state">当前账号还没有账目。登录后点一条示例句子，或者直接录入你自己的消费记录。</div>';
     return;
