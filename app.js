@@ -373,19 +373,34 @@ async function handlePasswordSignUp() {
 
 async function signOut() {
   if (!state.supabase) {
+    setAuthStatus("当前未完成 Supabase 配置，无法退出。", "warn");
     return;
   }
 
-  const { error } = await state.supabase.auth.signOut();
-  if (error) {
+  setAuthStatus("正在退出登录…", "idle");
+  if (refs.signOutBtn) {
+    refs.signOutBtn.disabled = true;
+  }
+
+  try {
+    const { error } = await state.supabase.auth.signOut();
+    if (error) {
+      console.error(error);
+      setAuthStatus(`退出失败：${error.message}`, "warn");
+      return;
+    }
+
+    setAuthStatus("你已退出登录。", "success");
+    if (refs.authPassword) {
+      refs.authPassword.value = "";
+    }
+  } catch (error) {
     console.error(error);
-    setAuthStatus(`退出失败：${error.message}`, "warn");
-    return;
-  }
-
-  setAuthStatus("你已退出登录。", "success");
-  if (refs.authPassword) {
-    refs.authPassword.value = "";
+    setAuthStatus(`退出时发生异常：${error.message || error}`, "warn");
+  } finally {
+    if (refs.signOutBtn) {
+      refs.signOutBtn.disabled = false;
+    }
   }
 }
 
@@ -824,30 +839,45 @@ async function handleSaveRecord(event) {
     note: refs.note.value.trim() || null
   };
 
-  let error = null;
-
-  if (state.editingId) {
-    const response = await state.supabase
-      .from("ledger_entries")
-      .update(payload)
-      .eq("id", state.editingId)
-      .eq("user_id", state.user.id);
-
-    error = response.error;
-  } else {
-    const response = await state.supabase.from("ledger_entries").insert(payload);
-    error = response.error;
+  const submitBtn = refs.form?.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
   }
+  setStatus("正在保存到云端账本…", "idle");
 
-  if (error) {
+  try {
+    let error = null;
+
+    if (state.editingId) {
+      const response = await state.supabase
+        .from("ledger_entries")
+        .update(payload)
+        .eq("id", state.editingId)
+        .eq("user_id", state.user.id);
+
+      error = response.error;
+    } else {
+      const response = await state.supabase.from("ledger_entries").insert(payload);
+      error = response.error;
+    }
+
+    if (error) {
+      console.error(error);
+      setStatus(`保存失败：${error.message}`, "warn");
+      return;
+    }
+
+    resetComposer();
+    await loadRecords();
+    setStatus("记录已保存到云端账本。", "success");
+  } catch (error) {
     console.error(error);
-    setStatus(`保存失败：${error.message}`, "warn");
-    return;
+    setStatus(`保存时发生异常：${error.message || error}`, "warn");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+    }
   }
-
-  resetComposer();
-  await loadRecords();
-  setStatus("记录已保存到云端账本。", "success");
 }
 
 function resetComposer() {
