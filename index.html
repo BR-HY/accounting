@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>一句话记账</title>
+    <title>一句话记账 · 首页</title>
     <meta
       name="description"
-      content="部署到 GitHub Pages 的云同步记账网页，支持自然语言录入、Supabase 登录、多设备同步和月度报表。"
+      content="一句话记账首页，负责账号登录、同步状态展示与功能入口导航。"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,28 +21,40 @@
     <div class="ambient ambient-right"></div>
 
     <main class="shell">
+      <header class="topbar card">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark"></span>
+          <span>一句话记账</span>
+        </a>
+        <nav class="topnav">
+          <a href="./index.html" aria-current="page">首页</a>
+          <a href="./ledger.html">记账</a>
+          <a href="./weekly.html">周报</a>
+          <a href="./monthly.html">月报</a>
+        </nav>
+      </header>
+
       <section class="hero card">
         <div class="hero-copy">
-          <p class="eyebrow">GitHub Pages / Supabase Ledger</p>
-          <h1>一句话录入，多设备同步，每个账号只看自己的账。</h1>
+          <p class="eyebrow">Portal / Pastel Blue System</p>
+          <h1>把登录、记账、周报、月报拆成清晰的四个页面。</h1>
           <p class="hero-text">
-            这一版已经从纯本地记账升级到云同步架构：前端继续部署在 GitHub Pages，登录和账本数据交给 Supabase，
-            后续再加报表和多端同步时不会推倒重来。
+            这个首页只做两件事：让你登录账号，以及告诉你接下来该去哪个功能页。视觉上参考你给的配色方向，
+            用浅蓝背景、白底卡片和柔和粉彩强调色来保持轻盈感。
           </p>
           <div class="hero-tags">
-            <span>魔法链接登录</span>
-            <span>RLS 用户隔离</span>
-            <span>月度报表骨架</span>
+            <span>账号同步</span>
+            <span>多页面结构</span>
+            <span>粉彩浅蓝配色</span>
           </div>
         </div>
 
-        <aside class="hero-panel">
-          <p class="panel-title">推荐录入示例</p>
-          <div class="sample-list">
-            <button class="sample-chip" data-sample="今天早餐豆浆油条花了12元">今天早餐豆浆油条花了12元</button>
-            <button class="sample-chip" data-sample="昨天打车去浦东机场用了86.5">昨天打车去浦东机场用了86.5</button>
-            <button class="sample-chip" data-sample="4月20日收到项目报销520元">4月20日收到项目报销520元</button>
-            <button class="sample-chip" data-sample="上周六买书和笔记本一共168元">上周六买书和笔记本一共168元</button>
+        <aside class="hero-panel tone-info">
+          <p class="panel-title">功能入口</p>
+          <div class="portal-list">
+            <a class="portal-mini" href="./ledger.html">去记账页：新增与管理账目</a>
+            <a class="portal-mini" href="./weekly.html">去周报页：看本周收支节奏</a>
+            <a class="portal-mini" href="./monthly.html">去月报页：看月度结构与趋势</a>
           </div>
         </aside>
       </section>
@@ -53,19 +65,13 @@
             <p class="eyebrow">Setup</p>
             <h2>还差 Supabase 配置</h2>
           </div>
-          <p class="section-note">把项目 URL 和 anon key 填进配置文件后，这个站点就能真正登录和同步。</p>
+          <p class="section-note">先把配置补齐，整个站点的登录和同步才会真正工作。</p>
         </div>
         <div class="setup-copy">
           <p>
-            请编辑当前目录下的 <code>config.js</code>，填入你自己的 Supabase
-            项目地址和匿名公钥。匿名公钥可以公开放在前端里，但不要把 service role key 放到这个仓库。
+            请编辑 <code>config.js</code>，填入你的 Supabase 项目地址和匿名公钥。再确认 GitHub Pages
+            的正式网址已经加入 Supabase 的 <code>Site URL</code> 和 <code>Redirect URLs</code>。
           </p>
-          <ol class="setup-steps">
-            <li>在 Supabase 新建免费项目。</li>
-            <li>运行 <code>supabase/schema.sql</code> 初始化表和权限。</li>
-            <li>在 <code>config.js</code> 里填写 <code>supabaseUrl</code> 和 <code>supabaseAnonKey</code>。</li>
-            <li>把 GitHub Pages 网址加入 Supabase 的 Site URL 和 Redirect URLs。</li>
-          </ol>
         </div>
       </section>
 
@@ -74,9 +80,9 @@
           <div class="section-head">
             <div>
               <p class="eyebrow">Auth</p>
-              <h2>登录后跨设备同步</h2>
+              <h2>登录中心</h2>
             </div>
-            <p class="section-note">默认使用邮箱魔法链接，零成本、无密码维护负担。</p>
+            <p class="section-note">密码登录为主，魔法链接作为备用方案。</p>
           </div>
 
           <form id="auth-form" class="auth-form">
@@ -84,19 +90,30 @@
               <span>邮箱</span>
               <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email" />
             </label>
+            <label class="field-wide">
+              <span>密码</span>
+              <input
+                id="auth-password"
+                type="password"
+                placeholder="至少 6 位，注册后可直接使用"
+                autocomplete="current-password"
+              />
+            </label>
             <div class="auth-actions field-wide">
-              <button id="send-link-btn" type="submit" class="primary-btn">发送登录链接</button>
+              <button id="sign-in-btn" type="submit" class="primary-btn">密码登录</button>
+              <button id="sign-up-btn" type="button" class="ghost-btn">注册账号</button>
+              <button id="send-link-btn" type="button" class="ghost-btn">邮箱魔法链接</button>
               <button id="refresh-session-btn" type="button" class="ghost-btn">刷新会话</button>
               <button id="sign-out-btn" type="button" class="ghost-btn hidden">退出登录</button>
             </div>
           </form>
 
           <div id="auth-status" class="status-card">
-            等待配置完成。接入 Supabase 后，这里会显示登录状态和回跳提示。
+            先登录账号，登录成功后再进入记账页、周报页或月报页。
           </div>
         </article>
 
-        <article class="sync-card card">
+        <article class="sync-card card tone-blue">
           <p class="eyebrow">Sync</p>
           <h2 id="sync-title">未登录</h2>
           <p id="sync-description" class="hero-text">
@@ -115,259 +132,44 @@
         </article>
       </section>
 
-      <section id="guest-panel" class="guest-panel card">
+      <section id="guest-panel" class="guest-panel card tone-lavender">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Gate</p>
-            <h2>先登录，再开始记账</h2>
+            <p class="eyebrow">Guide</p>
+            <h2>登录后再进入功能页</h2>
           </div>
-          <p class="section-note">这样每条记录都会自动和当前账号绑定，天然支持多设备同步和用户隔离。</p>
+          <p class="section-note">这样每个页面都能自动按当前账号拉取自己的账本数据。</p>
         </div>
         <p class="guest-copy">
-          登录成功后，下面的录入区、账目列表和报表会自动展开。如果你之前在浏览器本地版里记过账，
-          系统会尝试把旧的本地记录一次性迁移到你的云端账号下。
+          你可以把首页理解成控制台入口。登录成功后，再分别去记账页、周报页、月报页操作，会更清爽也更接近真实产品结构。
         </p>
       </section>
 
       <section id="app-shell" class="app-shell hidden">
-        <section class="workspace">
-          <div class="composer card">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Step 1</p>
-                <h2>自然语言录入</h2>
-              </div>
-              <p class="section-note">解析在浏览器执行，保存时写入你的 Supabase 账本。</p>
-            </div>
+        <section class="portal-grid">
+          <article class="portal-card card tone-yellow">
+            <p class="eyebrow">Ledger</p>
+            <h2>记账页</h2>
+            <p>输入一句自然语言，自动解析金额、日期、用途和分类，然后保存到账本。</p>
+            <a class="primary-btn link-btn" href="./ledger.html">进入记账页</a>
+          </article>
 
-            <label class="input-label" for="entry-input">输入一句话</label>
-            <textarea
-              id="entry-input"
-              rows="4"
-              placeholder="例如：昨天晚上请客户吃饭花了328元"
-            ></textarea>
+          <article class="portal-card card tone-green">
+            <p class="eyebrow">Weekly</p>
+            <h2>周报页</h2>
+            <p>按周查看每日收支、分类排行和本周账目明细，更适合看短期节奏。</p>
+            <a class="primary-btn link-btn" href="./weekly.html">进入周报页</a>
+          </article>
 
-            <div class="composer-actions">
-              <button id="analyze-btn" type="button" class="primary-btn">自动分析</button>
-              <button id="reset-btn" type="button" class="ghost-btn">清空输入</button>
-            </div>
-
-            <div id="analysis-status" class="status-card">
-              等待输入。点击“自动分析”后会把结果填入右侧表单。
-            </div>
-          </div>
-
-          <div class="review card">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Step 2</p>
-                <h2>确认解析结果</h2>
-              </div>
-              <p class="section-note">自动提取后仍可手动修正，保存时会同步到当前账号。</p>
-            </div>
-
-            <form id="record-form" class="record-form">
-              <label>
-                <span>类型</span>
-                <select id="record-type">
-                  <option value="expense">支出</option>
-                  <option value="income">收入</option>
-                </select>
-              </label>
-
-              <label>
-                <span>金额</span>
-                <input id="record-amount" type="number" step="0.01" min="0" placeholder="0.00" />
-              </label>
-
-              <label>
-                <span>日期</span>
-                <input id="record-date" type="date" />
-              </label>
-
-              <label>
-                <span>时间</span>
-                <input id="record-time" type="time" />
-              </label>
-
-              <label>
-                <span>分类</span>
-                <select id="record-category"></select>
-              </label>
-
-              <label class="field-wide">
-                <span>用途 / 项目</span>
-                <input id="record-purpose" type="text" placeholder="例如：和客户吃饭" />
-              </label>
-
-              <label class="field-wide">
-                <span>原始描述</span>
-                <textarea id="record-note" rows="3" placeholder="保留原始输入文本"></textarea>
-              </label>
-
-              <div class="form-actions field-wide">
-                <button type="submit" class="primary-btn">保存到云端账本</button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <section class="dashboard">
-          <div class="stats-grid">
-            <article class="stat-card card">
-              <p>本月支出</p>
-              <strong id="monthly-expense">¥0.00</strong>
-            </article>
-            <article class="stat-card card">
-              <p>本月收入</p>
-              <strong id="monthly-income">¥0.00</strong>
-            </article>
-            <article class="stat-card card">
-              <p>账户结余</p>
-              <strong id="balance-total">¥0.00</strong>
-            </article>
-            <article class="stat-card card">
-              <p>记录总数</p>
-              <strong id="record-count">0</strong>
-            </article>
-          </div>
-
-          <section class="card report-shell">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Reports</p>
-                <h2>周报 / 月报</h2>
-              </div>
-              <div class="report-tabs" role="tablist" aria-label="报表视图切换">
-                <button id="report-tab-weekly" type="button" class="ghost-btn is-active">周报</button>
-                <button id="report-tab-monthly" type="button" class="ghost-btn">月报</button>
-              </div>
-            </div>
-
-            <section id="weekly-report-panel" class="report-panel">
-              <div class="report-toolbar">
-                <button id="weekly-prev-btn" type="button" class="ghost-btn">上一周</button>
-                <strong id="weekly-range" class="report-range">--</strong>
-                <button id="weekly-next-btn" type="button" class="ghost-btn">下一周</button>
-              </div>
-
-              <div id="weekly-summary" class="report-summary-grid"></div>
-
-              <div class="report-grid">
-                <section class="report-block">
-                  <div class="block-head">
-                    <h3>每日收支</h3>
-                    <p>按周一到周日查看每天的变化。</p>
-                  </div>
-                  <div id="weekly-daily-list" class="daily-list"></div>
-                </section>
-
-                <section class="report-block">
-                  <div class="block-head">
-                    <h3>分类排行</h3>
-                    <p>只统计本周支出，方便看花钱重点。</p>
-                  </div>
-                  <div id="weekly-category-list" class="breakdown-list"></div>
-                </section>
-              </div>
-
-              <section class="report-block">
-                <div class="block-head">
-                  <h3>本周账目明细</h3>
-                  <p>周报不是只看总数，下面保留这周的具体记录。</p>
-                </div>
-                <div id="weekly-records-list" class="report-records-list"></div>
-              </section>
-            </section>
-
-            <section id="monthly-report-panel" class="report-panel hidden">
-              <div class="report-toolbar">
-                <button id="monthly-prev-btn" type="button" class="ghost-btn">上一月</button>
-                <strong id="monthly-range" class="report-range">--</strong>
-                <button id="monthly-next-btn" type="button" class="ghost-btn">下一月</button>
-              </div>
-
-              <div id="monthly-summary" class="report-summary-grid"></div>
-
-              <div class="report-grid">
-                <section class="report-block">
-                  <div class="block-head">
-                    <h3>分类结构</h3>
-                    <p>看看这个月主要花在哪一类。</p>
-                  </div>
-                  <div id="monthly-category-list" class="breakdown-list"></div>
-                </section>
-
-                <section class="report-block">
-                  <div class="block-head">
-                    <h3>周度拆解</h3>
-                    <p>把月报拆成每周，方便发现节奏变化。</p>
-                  </div>
-                  <div id="monthly-week-list" class="week-list"></div>
-                </section>
-              </div>
-
-              <div class="report-grid">
-                <section class="report-block">
-                  <div class="block-head">
-                    <h3>每日流水</h3>
-                    <p>按日期查看当月每天的收支和结余。</p>
-                  </div>
-                  <div id="monthly-daily-list" class="daily-list"></div>
-                </section>
-
-                <section class="report-block">
-                  <div class="block-head">
-                    <h3>近六个月趋势</h3>
-                    <p>保留跨月份的长期对比视角。</p>
-                  </div>
-                  <div id="trend-list" class="trend-list"></div>
-                </section>
-              </div>
-
-              <section class="report-block">
-                <div class="block-head">
-                  <h3>本月账目明细</h3>
-                  <p>月报对应的原始记录都在这里，方便核对。</p>
-                </div>
-                <div id="monthly-records-list" class="report-records-list"></div>
-              </section>
-            </section>
-          </section>
-
-          <section class="card records-card">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Ledger</p>
-                <h2>账目列表</h2>
-              </div>
-              <div class="toolbar">
-                <button id="export-btn" type="button" class="ghost-btn">导出 CSV</button>
-                <button id="seed-btn" type="button" class="ghost-btn">写入示例数据</button>
-              </div>
-            </div>
-            <div id="records-list" class="records-list"></div>
-          </section>
+          <article class="portal-card card tone-pink">
+            <p class="eyebrow">Monthly</p>
+            <h2>月报页</h2>
+            <p>看月度净额、分类结构、周度拆解和近六个月趋势，适合做复盘。</p>
+            <a class="primary-btn link-btn" href="./monthly.html">进入月报页</a>
+          </article>
         </section>
       </section>
     </main>
-
-    <template id="record-item-template">
-      <article class="record-item">
-        <div class="record-main">
-          <div class="record-heading">
-            <h3 class="record-purpose"></h3>
-            <span class="record-amount"></span>
-          </div>
-          <p class="record-meta"></p>
-          <p class="record-note"></p>
-        </div>
-        <div class="record-actions">
-          <button class="ghost-btn record-edit-btn" type="button">回填编辑</button>
-          <button class="ghost-btn danger-btn record-delete-btn" type="button">删除</button>
-        </div>
-      </article>
-    </template>
 
     <script src="./config.js"></script>
     <script type="module" src="./app.js"></script>
