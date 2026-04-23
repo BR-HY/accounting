@@ -860,6 +860,11 @@ async function handleSaveRecord(event) {
     saveBtn.disabled = true;
   }
   setStatus("正在保存到云端账本…", "idle");
+  console.info("[ledger] save start", {
+    editingId: state.editingId,
+    userId: state.user.id,
+    payload
+  });
 
   try {
     let error = null;
@@ -873,6 +878,7 @@ async function handleSaveRecord(event) {
         .select(LEDGER_SELECT_COLUMNS)
         .single();
 
+      console.info("[ledger] update response", response);
       error = response.error;
       if (!error && response.data) {
         upsertLocalRecord(mapRowToRecord(response.data));
@@ -883,6 +889,7 @@ async function handleSaveRecord(event) {
         .insert(payload)
         .select(LEDGER_SELECT_COLUMNS)
         .single();
+      console.info("[ledger] insert response", response);
       error = response.error;
       if (!error && response.data) {
         upsertLocalRecord(mapRowToRecord(response.data));
