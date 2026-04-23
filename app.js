@@ -95,6 +95,8 @@ const refs = {
   monthlyNextBtn: document.querySelector("#monthly-next-btn"),
   monthlyRange: document.querySelector("#monthly-range"),
   monthlySummary: document.querySelector("#monthly-summary"),
+  monthlyCategoryChart: document.querySelector("#monthly-category-chart"),
+  monthlyTrendChart: document.querySelector("#monthly-trend-chart"),
   monthlyCategoryList: document.querySelector("#monthly-category-list"),
   monthlyWeekList: document.querySelector("#monthly-week-list"),
   monthlyDailyList: document.querySelector("#monthly-daily-list"),
@@ -410,6 +412,7 @@ function getRedirectUrl() {
 
 function updateAuthUi() {
   const isLoggedIn = Boolean(state.user);
+  const hasInlineAuthEntry = Boolean(refs.authForm);
   refs.signOutBtn?.classList.toggle("hidden", !isLoggedIn);
   refs.guestPanel?.classList.toggle("hidden", isLoggedIn || !state.isSetupReady);
   refs.appShell?.classList.toggle("hidden", !isLoggedIn);
@@ -426,7 +429,11 @@ function updateAuthUi() {
     if (refs.syncTitle) refs.syncTitle.textContent = "未登录";
     if (refs.currentUser) refs.currentUser.textContent = "匿名访客";
     if (refs.syncState) refs.syncState.textContent = "等待登录";
-    if (refs.syncDescription) refs.syncDescription.textContent = "支持邮箱密码登录，魔法链接也可以作为备用方式；登录后同一账号跨设备会看到同一份账本。";
+    if (refs.syncDescription) {
+      refs.syncDescription.textContent = hasInlineAuthEntry
+        ? "支持邮箱密码登录，魔法链接也可以作为备用方式；登录后同一账号跨设备会看到同一份账本。"
+        : "请先回首页登录或切换账号；登录后同一账号跨设备会看到同一份账本。";
+    }
     return;
   }
 
@@ -973,7 +980,17 @@ function renderWeeklyReport() {
 }
 
 function renderMonthlyReport() {
-  if (!refs.monthlyRange || !refs.monthlySummary || !refs.monthlyCategoryList || !refs.monthlyWeekList || !refs.monthlyDailyList || !refs.monthlyRecordsList || !refs.trendList) {
+  if (
+    !refs.monthlyRange ||
+    !refs.monthlySummary ||
+    !refs.monthlyCategoryChart ||
+    !refs.monthlyTrendChart ||
+    !refs.monthlyCategoryList ||
+    !refs.monthlyWeekList ||
+    !refs.monthlyDailyList ||
+    !refs.monthlyRecordsList ||
+    !refs.trendList
+  ) {
     return;
   }
   state.selectedMonthDate = getStartOfMonth(state.selectedMonthDate);
@@ -983,9 +1000,11 @@ function renderMonthlyReport() {
 
   const monthlyRecords = state.records.filter((record) => isRecordInRange(record, monthStart, monthEnd));
   const monthlyIncome = sumAmounts(monthlyRecords.filter((record) => record.type === "income"));
-  const monthlyExpense = sumAmounts(monthlyRecords.filter((record) => record.type === "expense"));
+  const monthlyExpenseRecords = monthlyRecords.filter((record) => record.type === "expense");
+  const monthlyExpense = sumAmounts(monthlyExpenseRecords);
   const monthlyTopCategory = findTopExpenseCategory(monthlyRecords);
   const monthDailyBuckets = buildDailyBuckets(monthStart, getDaysInMonth(monthStart), monthlyRecords);
+  const monthlyTrend = buildMonthlyTrend(state.records, 6);
   const peakDay = findPeakExpenseDay(monthDailyBuckets);
 
   refs.monthlySummary.innerHTML = renderSummaryTiles([
@@ -997,14 +1016,12 @@ function renderMonthlyReport() {
     { label: "最高支出日", value: peakDay.label }
   ]);
 
-  renderCategoryBreakdown(
-    refs.monthlyCategoryList,
-    monthlyRecords.filter((record) => record.type === "expense"),
-    "本月还没有支出记录。"
-  );
+  renderMonthlyCategoryChart(refs.monthlyCategoryChart, monthlyExpenseRecords, "本月还没有支出数据，先记几笔再来看图表。");
+  renderCategoryBreakdown(refs.monthlyCategoryList, monthlyExpenseRecords, "本月还没有支出记录。");
   renderWeeklySlices(refs.monthlyWeekList, buildMonthWeekBuckets(monthStart, monthEnd, monthlyRecords), "本月还没有周度数据。");
   renderDailyList(refs.monthlyDailyList, monthDailyBuckets, "本月还没有每日流水。");
-  renderTrendList(refs.trendList, buildMonthlyTrend(state.records, 6), "至少要有一个月的数据，趋势图才会更有意思。");
+  renderMonthlyTrendChart(refs.monthlyTrendChart, monthlyTrend, "至少要有一个月的数据，图表趋势才会更清晰。");
+  renderTrendList(refs.trendList, monthlyTrend, "至少要有一个月的数据，趋势图才会更有意思。");
   renderReportRecordList(refs.monthlyRecordsList, monthlyRecords, "本月还没有账目明细。");
 }
 
@@ -1138,6 +1155,95 @@ function renderTrendList(target, trend, emptyMessage) {
       `;
     })
     .join("");
+}
+
+function renderMonthlyCategoryChart(target, expenseRecords, emptyMessage) {
+  if (!target) {
+    return;
+  }
+
+  if (!expenseRecords.length) {
+    target.innerHTML = `<div class="empty-state">${emptyMessage}</div>`;
+    return;
+  }
+
+  const grouped = expenseRecords.reduce((map, record) => {
+    map[record.category] = (map[record.category] || 0) + record.amount;
+    return map;
+  }, {});
+
+  const entries = Object.entries(grouped)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+  const total = entries.reduce((sum, [, amount]) => sum + amount, 0) || 1;
+  const topAmount = entries[0]?.[1] || 1;
+
+  target.innerHTML = `
+    <div class="chart-shell">
+      <p class="chart-caption">本月支出最多的分类会排在最上面，条越长代表占比越高。</p>
+      <div class="category-chart">
+        ${entries
+          .map(([category, amount]) => {
+            const ratio = (amount / total) * 100;
+            const width = Math.max((amount / topAmount) * 100, 10);
+            return `
+              <article class="category-bar-item">
+                <div class="category-bar-head">
+                  <strong class="category-bar-label">${escapeHtml(category || "未分类")}</strong>
+                  <span class="category-bar-value">${formatCurrency(amount)} · ${ratio.toFixed(1)}%</span>
+                </div>
+                <div class="category-bar-track">
+                  <div class="category-bar-fill" style="width:${width}%"></div>
+                </div>
+              </article>
+            `;
+          })
+          .join("")}
+      </div>
+      <p class="chart-note">仅统计本月支出记录，最多展示前 6 个分类。</p>
+    </div>
+  `;
+}
+
+function renderMonthlyTrendChart(target, trend, emptyMessage) {
+  if (!target) {
+    return;
+  }
+
+  if (!trend.length || trend.every((item) => item.income === 0 && item.expense === 0)) {
+    target.innerHTML = `<div class="empty-state">${emptyMessage}</div>`;
+    return;
+  }
+
+  const maxAmount = Math.max(...trend.map((item) => Math.max(item.income, item.expense)), 1);
+
+  target.innerHTML = `
+    <div class="chart-shell trend-chart">
+      <div class="chart-legend">
+        <span class="legend-chip" style="--legend-color: var(--income)">收入</span>
+        <span class="legend-chip" style="--legend-color: var(--expense)">支出</span>
+      </div>
+      <div class="trend-plot">
+        ${trend
+          .map((item) => {
+            const incomeHeight = Math.max((item.income / maxAmount) * 100, item.income > 0 ? 8 : 0);
+            const expenseHeight = Math.max((item.expense / maxAmount) * 100, item.expense > 0 ? 8 : 0);
+            return `
+              <article class="trend-column">
+                <div class="trend-bars">
+                  <div class="trend-bar trend-bar-income" style="height:${incomeHeight}%"></div>
+                  <div class="trend-bar trend-bar-expense" style="height:${expenseHeight}%"></div>
+                </div>
+                <strong class="trend-column-label">${escapeHtml(item.label)}</strong>
+                <span class="trend-column-values">收 ${formatCompactCurrency(item.income)}<br />支 ${formatCompactCurrency(item.expense)}</span>
+              </article>
+            `;
+          })
+          .join("")}
+      </div>
+      <p class="chart-note">同一月份里，绿色代表收入，橙色代表支出。</p>
+    </div>
+  `;
 }
 
 function buildMonthlyTrend(records, monthsBack) {
@@ -1511,6 +1617,17 @@ function formatCurrency(value) {
     style: "currency",
     currency: "CNY"
   }).format(Number(value || 0));
+}
+
+function formatCompactCurrency(value) {
+  const amount = Number(value || 0);
+  if (amount >= 10000) {
+    return `${(amount / 10000).toFixed(1)}万`;
+  }
+  if (amount >= 1000) {
+    return `${(amount / 1000).toFixed(1)}k`;
+  }
+  return amount.toFixed(0);
 }
 
 function formatDateInput(date) {
