@@ -36,6 +36,28 @@
           <p class="eyebrow">Weekly Report</p>
           <h1>把这一周的收支节奏单独拆出来看。</h1>
           <p class="hero-text">周报页只负责周视角：每日收支、分类排行和本周明细，不再和记账表单混在一起。</p>
+          <article class="hero-sync-card card tone-blue">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Sync</p>
+                <h2 id="sync-title">未登录</h2>
+              </div>
+              <p class="section-note">周报页不再放登录入口，需要切换账号时回到首页处理。</p>
+            </div>
+            <p id="sync-description" class="hero-text">周报页只读当前账号的数据，不会和其他账号混在一起。</p>
+            <div class="sync-metrics">
+              <div>
+                <span>当前用户</span>
+                <strong id="current-user">未连接</strong>
+              </div>
+              <div>
+                <span>同步状态</span>
+                <strong id="sync-state">待配置</strong>
+              </div>
+            </div>
+            <div id="auth-status" class="status-card">周报页只显示当前账号的数据，如需切换账号请回首页。</div>
+            <a class="ghost-btn link-btn hero-sync-link" href="./index.html">回到首页处理账号</a>
+          </article>
         </div>
         <aside class="hero-panel tone-lavender">
           <p class="panel-title">周报适合看什么</p>
@@ -60,61 +82,16 @@
         </div>
       </section>
 
-      <section class="auth-grid compact-grid">
-        <article class="auth-card card">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Auth</p>
-              <h2>登录后查看周报</h2>
-            </div>
-            <p class="section-note">同一账号在不同设备打开周报，看到的是同一套数据。</p>
-          </div>
-          <form id="auth-form" class="auth-form">
-            <label class="field-wide">
-              <span>邮箱</span>
-              <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email" />
-            </label>
-            <label class="field-wide">
-              <span>密码</span>
-              <input id="auth-password" type="password" placeholder="输入密码" autocomplete="current-password" />
-            </label>
-            <div class="auth-actions field-wide">
-              <button id="sign-in-btn" type="submit" class="primary-btn">密码登录</button>
-              <button id="sign-up-btn" type="button" class="ghost-btn">注册账号</button>
-              <button id="send-link-btn" type="button" class="ghost-btn">邮箱魔法链接</button>
-              <button id="refresh-session-btn" type="button" class="ghost-btn">刷新会话</button>
-              <button id="sign-out-btn" type="button" class="ghost-btn hidden">退出登录</button>
-            </div>
-          </form>
-          <div id="auth-status" class="status-card">登录后即可查看当前账号的周报。</div>
-        </article>
-
-        <article class="sync-card card tone-blue">
-          <p class="eyebrow">Sync</p>
-          <h2 id="sync-title">未登录</h2>
-          <p id="sync-description" class="hero-text">周报页只读当前账号的数据，不会和其他账号混在一起。</p>
-          <div class="sync-metrics">
-            <div>
-              <span>当前用户</span>
-              <strong id="current-user">未连接</strong>
-            </div>
-            <div>
-              <span>同步状态</span>
-              <strong id="sync-state">待配置</strong>
-            </div>
-          </div>
-        </article>
-      </section>
-
       <section id="guest-panel" class="guest-panel card tone-lavender">
         <div class="section-head">
           <div>
             <p class="eyebrow">Gate</p>
             <h2>登录后查看周报</h2>
           </div>
-          <p class="section-note">未登录时不会加载你的周报数据。</p>
+          <p class="section-note">请先在首页登录，然后回到周报页面。</p>
         </div>
-        <p class="guest-copy">登录后，下面会展开本周汇总、每日收支、分类排行和本周明细。</p>
+        <p class="guest-copy">登录后，下面会展开本周汇总、每日收支、分类排行和本周明细。需要切换账号时，点下面这个入口回到首页。</p>
+        <a class="ghost-btn link-btn guest-link" href="./index.html">去首页登录或切换账号</a>
       </section>
 
       <section id="app-shell" class="app-shell hidden">
