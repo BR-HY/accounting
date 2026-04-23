@@ -151,6 +151,12 @@ code {
   animation: rise-in 0.8s ease-out both;
 }
 
+.hero-copy {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
 .hero-copy h1,
 .section-head h2,
 .record-heading h3,
@@ -228,6 +234,7 @@ code {
 }
 
 .hero-panel,
+.hero-sync-card,
 .sync-card,
 .setup-panel,
 .guest-panel,
@@ -244,6 +251,19 @@ code {
 .hero-panel {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(236, 247, 255, 0.95));
   border: 1px solid rgba(106, 174, 223, 0.22);
+}
+
+.hero-sync-card {
+  margin-top: 0.4rem;
+}
+
+.hero-sync-card .section-head {
+  margin-bottom: 0.75rem;
+}
+
+.hero-sync-link,
+.guest-link {
+  width: fit-content;
 }
 
 .panel-title {
@@ -635,6 +655,143 @@ select:focus {
   border: 1px solid rgba(96, 64, 39, 0.1);
 }
 
+.chart-card {
+  min-height: 21rem;
+  padding: 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(103, 134, 168, 0.12);
+}
+
+.chart-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.chart-caption,
+.chart-legend,
+.chart-note {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.legend-chip::before {
+  content: "";
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: var(--legend-color, var(--accent));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.category-chart {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.category-bar-item {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.category-bar-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.category-bar-label {
+  font-weight: 700;
+}
+
+.category-bar-value {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.category-bar-track {
+  position: relative;
+  height: 0.95rem;
+  border-radius: 999px;
+  background: rgba(103, 134, 168, 0.1);
+  overflow: hidden;
+}
+
+.category-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(113, 164, 222, 0.92), rgba(86, 135, 207, 0.96));
+}
+
+.trend-chart {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  min-height: 18rem;
+}
+
+.trend-plot {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+  gap: 0.85rem;
+  align-items: end;
+  min-height: 12rem;
+}
+
+.trend-column {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+}
+
+.trend-bars {
+  width: 100%;
+  height: 12rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.35rem;
+}
+
+.trend-bar {
+  min-height: 6px;
+  border-radius: 16px 16px 6px 6px;
+  background: rgba(103, 134, 168, 0.14);
+}
+
+.trend-bar-income {
+  background: linear-gradient(180deg, #7dd6af 0%, var(--income) 100%);
+}
+
+.trend-bar-expense {
+  background: linear-gradient(180deg, #f4b08c 0%, var(--expense) 100%);
+}
+
+.trend-column-label {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.trend-column-values {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 .block-head {
   display: flex;
   justify-content: space-between;
@@ -752,6 +909,41 @@ select:focus {
   color: var(--muted);
 }
 
+.toast-stack {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 9999;
+  display: grid;
+  gap: 0.75rem;
+  width: min(22rem, calc(100vw - 2rem));
+}
+
+.toast {
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(103, 134, 168, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 34px rgba(94, 131, 165, 0.18);
+  color: var(--ink);
+  animation: rise-in 0.22s ease-out both;
+}
+
+.toast-success {
+  border-color: rgba(107, 187, 115, 0.28);
+  background: rgba(232, 248, 232, 0.98);
+}
+
+.toast-warn {
+  border-color: rgba(239, 110, 101, 0.24);
+  background: rgba(255, 236, 234, 0.96);
+}
+
+.toast-idle {
+  border-color: rgba(106, 174, 223, 0.22);
+  background: rgba(238, 247, 255, 0.98);
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -800,6 +992,7 @@ select:focus {
   .hero,
   .setup-panel,
   .guest-panel,
+  .hero-sync-card,
   .auth-card,
   .sync-card,
   .composer,
@@ -816,7 +1009,8 @@ select:focus {
   .sync-metrics,
   .record-item,
   .trend-stack,
-  .daily-track {
+  .daily-track,
+  .trend-bars {
     grid-template-columns: 1fr;
   }
 
@@ -835,5 +1029,9 @@ select:focus {
   .block-head p {
     text-align: left;
     max-width: none;
+  }
+
+  .trend-plot {
+    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   }
 }
