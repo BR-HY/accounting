@@ -38,6 +38,28 @@
           <p class="hero-text">
             页面只保留记账相关的信息：录入、确认、保存、导出和账目列表，不再把报表混在一起。
           </p>
+          <article class="hero-sync-card card tone-blue">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Sync</p>
+                <h2 id="sync-title">未登录</h2>
+              </div>
+              <p class="section-note">记账页不再放登录入口，需要切换账号时回到首页处理。</p>
+            </div>
+            <p id="sync-description" class="hero-text">当前页面只展示记账功能，数据仍然按账号同步。</p>
+            <div class="sync-metrics">
+              <div>
+                <span>当前用户</span>
+                <strong id="current-user">未连接</strong>
+              </div>
+              <div>
+                <span>同步状态</span>
+                <strong id="sync-state">待配置</strong>
+              </div>
+            </div>
+            <div id="auth-status" class="status-card">如需登录、退出或切换账号，请回到首页处理。</div>
+            <a class="ghost-btn link-btn hero-sync-link" href="./index.html">回到首页处理账号</a>
+          </article>
         </div>
         <aside class="hero-panel tone-info">
           <p class="panel-title">试试这些句子</p>
@@ -63,61 +85,16 @@
         </div>
       </section>
 
-      <section class="auth-grid compact-grid">
-        <article class="auth-card card">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Auth</p>
-              <h2>账号入口</h2>
-            </div>
-            <p class="section-note">在任何功能页都能直接登录和退出，不必来回跳。</p>
-          </div>
-          <form id="auth-form" class="auth-form">
-            <label class="field-wide">
-              <span>邮箱</span>
-              <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email" />
-            </label>
-            <label class="field-wide">
-              <span>密码</span>
-              <input id="auth-password" type="password" placeholder="输入密码" autocomplete="current-password" />
-            </label>
-            <div class="auth-actions field-wide">
-              <button id="sign-in-btn" type="submit" class="primary-btn">密码登录</button>
-              <button id="sign-up-btn" type="button" class="ghost-btn">注册账号</button>
-              <button id="send-link-btn" type="button" class="ghost-btn">邮箱魔法链接</button>
-              <button id="refresh-session-btn" type="button" class="ghost-btn">刷新会话</button>
-              <button id="sign-out-btn" type="button" class="ghost-btn hidden">退出登录</button>
-            </div>
-          </form>
-          <div id="auth-status" class="status-card">登录后即可开始记账。</div>
-        </article>
-
-        <article class="sync-card card tone-blue">
-          <p class="eyebrow">Sync</p>
-          <h2 id="sync-title">未登录</h2>
-          <p id="sync-description" class="hero-text">当前页面只展示记账功能，数据仍然按账号同步。</p>
-          <div class="sync-metrics">
-            <div>
-              <span>当前用户</span>
-              <strong id="current-user">未连接</strong>
-            </div>
-            <div>
-              <span>同步状态</span>
-              <strong id="sync-state">待配置</strong>
-            </div>
-          </div>
-        </article>
-      </section>
-
       <section id="guest-panel" class="guest-panel card tone-lavender">
         <div class="section-head">
           <div>
             <p class="eyebrow">Gate</p>
             <h2>先登录，再开始记账</h2>
           </div>
-          <p class="section-note">登录后所有记录都自动和当前账号绑定。</p>
+          <p class="section-note">请先在首页登录，然后再回到这个页面。</p>
         </div>
-        <p class="guest-copy">如果你已经在首页登录过，刷新这个页面就会自动拿到当前会话。</p>
+        <p class="guest-copy">如果你已经在首页登录过，刷新这个页面就会自动拿到当前会话。需要更换账号时，点下面这个入口回到首页。</p>
+        <a class="ghost-btn link-btn guest-link" href="./index.html">去首页登录或切换账号</a>
       </section>
 
       <section id="app-shell" class="app-shell hidden">
