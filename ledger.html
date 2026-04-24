@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>云朵账本 · 记账页</title>
+    <meta name="description" content="云朵账本的记账页，负责新增、编辑、导入导出和云端账目管理。" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="ledger">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <main class="shell">
+      <header class="topbar card">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark"></span>
+          <span>云朵账本</span>
+        </a>
+        <nav class="topnav">
+          <a href="./index.html">首页</a>
+          <a href="./ledger.html" aria-current="page">记账</a>
+          <a href="./weekly.html">周报</a>
+          <a href="./monthly.html">月报</a>
+        </nav>
+        <div class="topbar-user">
+          <span id="current-user-chip" class="user-chip">未登录</span>
+          <button id="sign-out-btn" class="ghost-btn hidden" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="hero card compact-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Ledger</p>
+          <h1>记账页只负责录入、管理和备份账目。</h1>
+          <p class="hero-text">分析被拆去了周报页和月报页，这里专心把每一笔记好。</p>
+          <article class="hero-sync-card card tone-blue">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Account</p>
+                <h2 id="page-sync-title">未登录</h2>
+              </div>
+              <p class="section-note">如需切换账号，请退出后重新登录。</p>
+            </div>
+            <p id="page-sync-description" class="hero-text">当前页面会同步当前账号的 Supabase 云端账本。</p>
+            <div class="sync-metrics">
+              <div>
+                <span>当前账号</span>
+                <strong id="page-current-user">未连接</strong>
+              </div>
+              <div>
+                <span>记录数量</span>
+                <strong id="page-record-count">0</strong>
+              </div>
+            </div>
+          </article>
+        </div>
+        <aside class="hero-panel tone-info">
+          <p class="panel-title">试试这些句子</p>
+          <div class="sample-list">
+            <button class="sample-chip" data-sample="今天早餐豆浆油条花了12元" type="button">今天早餐豆浆油条花了12元</button>
+            <button class="sample-chip" data-sample="昨天打车回家用了56元" type="button">昨天打车回家用了56元</button>
+            <button class="sample-chip" data-sample="4月20日收到项目报销520元" type="button">4月20日收到项目报销520元</button>
+            <button class="sample-chip" data-sample="上周六买书和笔记本一共168元" type="button">上周六买书和笔记本一共168元</button>
+          </div>
+        </aside>
+      </section>
+
+      <section id="guest-panel" class="guest-panel card tone-lavender">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Gate</p>
+            <h2>请先登录后再记账</h2>
+          </div>
+          <p class="section-note">回到首页登录 Supabase 账号。</p>
+        </div>
+        <p class="guest-copy">这是一个 GitHub Pages 前端 + Supabase 后端的记账站点。登录后会读取当前账号的云端账本数据。</p>
+        <a class="ghost-btn link-btn" href="./index.html">回首页登录</a>
+      </section>
+
+      <section id="app-shell" class="app-shell hidden">
+        <section class="stats-grid">
+          <article class="stat-card card tone-blue">
+            <p>当前结余</p>
+            <strong id="balance-total">¥0.00</strong>
+          </article>
+          <article class="stat-card card tone-yellow">
+            <p>本月支出</p>
+            <strong id="monthly-expense">¥0.00</strong>
+          </article>
+          <article class="stat-card card tone-green">
+            <p>本月收入</p>
+            <strong id="monthly-income">¥0.00</strong>
+          </article>
+          <article class="stat-card card tone-lavender">
+            <p>总记录数</p>
+            <strong id="record-count">0</strong>
+          </article>
+        </section>
+
+        <section class="workspace ledger-workspace">
+          <section class="composer card">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Quick Add</p>
+                <h2>新增账目</h2>
+              </div>
+              <p class="section-note">支持手动填写，也支持一句话自动识别。</p>
+            </div>
+
+            <label class="input-label" for="quick-input">一句话速记</label>
+            <textarea id="quick-input" rows="4" placeholder="例如：昨天中午午饭花了32元"></textarea>
+            <div class="composer-actions">
+              <button id="analyze-btn" class="primary-btn" type="button">自动识别</button>
+              <button id="clear-form-btn" class="ghost-btn" type="button">清空表单</button>
+            </div>
+
+            <form id="record-form" class="record-form">
+              <label>
+                <span>类型</span>
+                <select id="record-type">
+                  <option value="expense">支出</option>
+                  <option value="income">收入</option>
+                </select>
+              </label>
+              <label>
+                <span>金额</span>
+                <input id="record-amount" type="number" step="0.01" min="0" placeholder="0.00" />
+              </label>
+              <label>
+                <span>日期</span>
+                <input id="record-date" type="date" />
+              </label>
+              <label>
+                <span>时间</span>
+                <input id="record-time" type="time" />
+              </label>
+              <label>
+                <span>分类</span>
+                <select id="record-category"></select>
+              </label>
+              <label>
+                <span>账户</span>
+                <select id="record-account">
+                  <option value="微信">微信</option>
+                  <option value="支付宝">支付宝</option>
+                  <option value="银行卡">银行卡</option>
+                  <option value="信用卡">信用卡</option>
+                  <option value="现金">现金</option>
+                  <option value="其他">其他</option>
+                </select>
+              </label>
+              <label class="field-wide">
+                <span>用途</span>
+                <input id="record-purpose" type="text" maxlength="60" placeholder="例如：午饭、房租、工资" />
+              </label>
+              <label class="field-wide">
+                <span>备注</span>
+                <textarea id="record-note" rows="3" placeholder="保留原始文本或补充说明"></textarea>
+              </label>
+              <div class="form-actions field-wide">
+                <button id="save-btn" class="primary-btn" type="submit">保存这笔记录</button>
+                <button id="cancel-edit-btn" class="ghost-btn hidden" type="button">取消编辑</button>
+              </div>
+            </form>
+            <div id="form-status" class="status-card status-idle">准备好了，随时可以开始记账。</div>
+          </section>
+
+          <section class="card records-card">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Manage</p>
+                <h2>账目列表</h2>
+              </div>
+              <div class="toolbar">
+                <button id="seed-btn" class="ghost-btn" type="button">写入示例数据</button>
+                <button id="export-btn" class="ghost-btn" type="button">导出 CSV</button>
+                <button id="backup-btn" class="ghost-btn" type="button">导出 JSON</button>
+                <label class="ghost-btn file-btn" for="import-file">导入 JSON</label>
+                <input id="import-file" type="file" accept="application/json" class="hidden-file" />
+                <button id="clear-all-btn" class="ghost-btn danger-btn" type="button">清空全部</button>
+              </div>
+            </div>
+
+            <div class="filters-grid">
+              <label>
+                <span>搜索</span>
+                <input id="search-input" type="text" placeholder="搜索用途、备注、分类" />
+              </label>
+              <label>
+                <span>类型</span>
+                <select id="filter-type">
+                  <option value="all">全部</option>
+                  <option value="expense">支出</option>
+                  <option value="income">收入</option>
+                </select>
+              </label>
+              <label>
+                <span>月份</span>
+                <input id="filter-month" type="month" />
+              </label>
+              <label>
+                <span>排序</span>
+                <select id="sort-order">
+                  <option value="desc">最新在前</option>
+                  <option value="asc">最早在前</option>
+                  <option value="amount-desc">金额从高到低</option>
+                  <option value="amount-asc">金额从低到高</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="records-list" class="records-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <template id="record-template">
+      <article class="record-item">
+        <div class="record-main">
+          <div class="record-heading">
+            <h3 class="record-purpose"></h3>
+            <span class="record-amount"></span>
+          </div>
+          <p class="record-meta"></p>
+          <p class="record-note"></p>
+        </div>
+        <div class="record-actions">
+          <button class="ghost-btn record-edit-btn" type="button">编辑</button>
+          <button class="ghost-btn danger-btn record-delete-btn" type="button">删除</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="./config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

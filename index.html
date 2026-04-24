@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>云朵账本 · 首页</title>
+    <meta
+      name="description"
+      content="云朵账本首页，提供 Supabase 真登录、云端同步和功能导航，可直接部署到 GitHub Pages。"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="home">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <main class="shell">
+      <header class="topbar card">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark"></span>
+          <span>云朵账本</span>
+        </a>
+        <nav class="topnav">
+          <a href="./index.html" aria-current="page">首页</a>
+          <a href="./ledger.html">记账</a>
+          <a href="./weekly.html">周报</a>
+          <a href="./monthly.html">月报</a>
+        </nav>
+        <div class="topbar-user">
+          <span id="current-user-chip" class="user-chip">未登录</span>
+          <button id="sign-out-btn" class="ghost-btn hidden" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="hero card">
+        <div class="hero-copy">
+          <p class="eyebrow">Pastel Blue / GitHub Pages</p>
+          <h2>一套能直接部署的记账网站，现在接上了 Supabase 真登录与云端同步。</h2>
+          <p class="hero-text">
+            前端仍然可以直接部署到 GitHub Pages，但登录和账本数据已经接到 Supabase。用户登录后会读取自己的云端账本，并可在不同设备间同步。
+          </p>
+          <div class="hero-tags">
+            <span>Supabase Auth</span>
+            <span>云端同步</span>
+            <span>周报独立页</span>
+            <span>月报独立页</span>
+          </div>
+        </div>
+
+        <aside class="hero-panel tone-info">
+          <p class="panel-title">当前版本说明</p>
+          <div class="portal-list">
+            <span class="portal-mini static">登录使用 Supabase Auth</span>
+            <span class="portal-mini static">账本存储在 Supabase Postgres</span>
+            <span class="portal-mini static">周报、月报分别单独展示分析</span>
+            <span class="portal-mini static">前端仍可直接部署到 GitHub Pages</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="auth-grid">
+        <article id="auth-panel" class="auth-card card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Auth</p>
+              <h3>登录 / 注册</h3>
+            </div>
+            <p class="section-note">注册、登录和账本数据都通过 Supabase 处理。</p>
+          </div>
+
+          <form id="auth-form" class="auth-form">
+            <label class="field-wide">
+              <span>邮箱</span>
+              <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="username" />
+            </label>
+            <label class="field-wide">
+              <span>密码</span>
+              <input id="auth-password" type="password" placeholder="至少 6 位" autocomplete="current-password" />
+            </label>
+            <div class="form-actions field-wide">
+              <button id="sign-in-btn" class="primary-btn" type="submit">登录</button>
+              <button id="sign-up-btn" class="ghost-btn" type="button">注册新账号</button>
+            </div>
+          </form>
+
+          <div id="auth-status" class="status-card status-idle">
+            提示：这是 Supabase 真登录版。部署后请先在 config.js 填入项目配置，并在 Supabase 里完成表和 RLS 初始化。
+          </div>
+        </article>
+
+        <article class="sync-card card tone-blue">
+          <p class="eyebrow">Profile</p>
+          <h3 id="home-sync-title">未登录</h3>
+          <p id="home-sync-description" class="hero-text">
+            登录后，你可以进入记账页管理账目，再分别去周报页和月报页查看分析；同一账号可跨设备同步。
+          </p>
+          <div class="sync-metrics">
+            <div>
+              <span>当前账号</span>
+              <strong id="home-current-user">未连接</strong>
+            </div>
+            <div>
+              <span>账本状态</span>
+              <strong id="home-sync-state">待登录</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="guest-panel" class="guest-panel card tone-lavender">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Guide</p>
+            <h3>先登录，再开始使用完整功能</h3>
+          </div>
+          <p class="section-note">完成配置并登录后，其他页面会自动读取你的云端账本。</p>
+        </div>
+        <p class="hero-text">
+          这套站点的前端可以直接部署到 GitHub Pages，但登录与账本存储依赖 Supabase。完成配置后，不同设备登录同一账号会看到同一份数据。
+        </p>
+      </section>
+
+      <section id="app-shell" class="app-shell hidden">
+        <section class="stats-grid">
+          <article class="stat-card card tone-blue">
+            <p>当前结余</p>
+            <strong id="balance-total">¥0.00</strong>
+          </article>
+          <article class="stat-card card tone-yellow">
+            <p>本月支出</p>
+            <strong id="monthly-expense">¥0.00</strong>
+          </article>
+          <article class="stat-card card tone-green">
+            <p>本月收入</p>
+            <strong id="monthly-income">¥0.00</strong>
+          </article>
+          <article class="stat-card card tone-lavender">
+            <p>总记录数</p>
+            <strong id="record-count">0</strong>
+          </article>
+        </section>
+
+        <section class="portal-list home-portal-grid">
+          <article class="portal-mini">
+            <strong>记账页</strong>
+            <p class="muted">负责新增、编辑、筛选、导出和备份账目。</p>
+            <a class="primary-btn" href="./ledger.html">进入记账页</a>
+          </article>
+          <article class="portal-mini">
+            <strong>周报页</strong>
+            <p class="muted">单独看一周的收支节奏、每日波动和支出分类。</p>
+            <a class="primary-btn" href="./weekly.html">进入周报页</a>
+          </article>
+          <article class="portal-mini">
+            <strong>月报页</strong>
+            <p class="muted">单独看月度结构、周度拆解、每日流水和趋势。</p>
+            <a class="primary-btn" href="./monthly.html">进入月报页</a>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
