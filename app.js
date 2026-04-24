@@ -6,6 +6,7 @@
   const LEDGER_SELECT_COLUMNS = "id, user_id, entry_type, amount, occurred_on, occurred_time, category, account, purpose, note, created_at, updated_at";
 
   const CATEGORY_OPTIONS = [
+    "话费",
     "餐饮",
     "出行",
     "外卖",
@@ -26,6 +27,7 @@
 
   const CATEGORY_KEYWORDS = [
     { category: "餐饮", words: ["早餐", "午餐", "午饭", "晚餐", "晚饭", "吃", "饭", "火锅", "咖啡", "饮料", "零食"] },
+    { category: "话费", words: ["充话费", "话费"] },
     { category: "出行", words: ["高铁", "火车票", "车票", "打车"] },
     { category: "奶茶", words: ["奶茶", "珍珠", "奶盖", "茶饮", "果茶", "喜茶", "COCO", "贡茶", "一点点"] },
     { category: "外卖", words: ["外卖", "饿了么", "美团", "外送", "送餐", "点餐"] },
