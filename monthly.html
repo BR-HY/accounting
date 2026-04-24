@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>云朵账本 · 月报页</title>
+    <meta name="description" content="云朵账本的月报页，单独展示月度结构、周度拆解、每日流水和趋势。" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="monthly">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <main class="shell">
+      <header class="topbar card">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark"></span>
+          <span>云朵账本</span>
+        </a>
+        <nav class="topnav">
+          <a href="./index.html">首页</a>
+          <a href="./ledger.html">记账</a>
+          <a href="./weekly.html">周报</a>
+          <a href="./monthly.html" aria-current="page">月报</a>
+        </nav>
+        <div class="topbar-user">
+          <span id="current-user-chip" class="user-chip">未登录</span>
+          <button id="sync-refresh-btn" class="ghost-btn" type="button">刷新数据</button>
+          <button id="sign-out-btn" class="ghost-btn hidden" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="hero card compact-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Monthly Report</p>
+          <h1>用月报看结构，也用趋势看变化。</h1>
+          <p class="hero-text">月报页会把分类结构、周度拆解、每日流水和近六个月趋势集中展示。</p>
+          <article class="hero-sync-card card tone-blue">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Account</p>
+                <h2 id="page-sync-title">未登录</h2>
+              </div>
+              <p class="section-note">月报页按当前账号独立展示。</p>
+            </div>
+            <p id="page-sync-description" class="hero-text">月报页会读取当前账号在 Supabase 中的账本并生成分析。</p>
+            <div class="sync-metrics">
+              <div>
+                <span>当前账号</span>
+                <strong id="page-current-user">未连接</strong>
+              </div>
+              <div>
+                <span>记录数量</span>
+                <strong id="page-record-count">0</strong>
+              </div>
+            </div>
+          </article>
+        </div>
+        <aside class="hero-panel tone-yellow">
+          <p class="panel-title">月报适合看什么</p>
+          <div class="portal-list">
+            <span class="portal-mini static">哪个分类占比最高</span>
+            <span class="portal-mini static">本月每周节奏是否变化</span>
+            <span class="portal-mini static">近几个月是否持续改善</span>
+          </div>
+        </aside>
+      </section>
+
+      <section id="guest-panel" class="guest-panel card tone-lavender">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Gate</p>
+            <h2>请先登录后查看月报</h2>
+          </div>
+          <p class="section-note">回到首页登录，再回来查看月报。</p>
+        </div>
+        <p class="guest-copy">登录后，这个页面会自动按当前账号在 Supabase 里的记录生成本月汇总、结构分析和趋势视图。</p>
+        <a class="ghost-btn link-btn" href="./index.html">回首页登录</a>
+      </section>
+
+      <section id="app-shell" class="app-shell hidden">
+        <section class="card report-shell">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Monthly</p>
+              <h2>月报</h2>
+            </div>
+            <p class="section-note">看月度结构，也看跨月趋势。</p>
+          </div>
+
+          <section class="report-panel">
+            <div class="report-toolbar">
+              <button id="monthly-prev-btn" class="ghost-btn" type="button">上一月</button>
+              <strong id="monthly-range" class="report-range">--</strong>
+              <button id="monthly-next-btn" class="ghost-btn" type="button">下一月</button>
+            </div>
+
+            <div id="monthly-summary" class="report-summary-grid"></div>
+
+            <div class="report-grid">
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>分类可视化</h3>
+                  <p>看本月支出重心。</p>
+                </div>
+                <div id="monthly-category-chart" class="chart-card"></div>
+              </section>
+
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>近六个月图表</h3>
+                  <p>收入和支出趋势对比。</p>
+                </div>
+                <div id="monthly-trend-chart" class="chart-card"></div>
+              </section>
+            </div>
+
+            <div class="report-grid">
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>分类结构</h3>
+                  <p>看看钱主要花在哪里。</p>
+                </div>
+                <div id="monthly-category-list" class="breakdown-list"></div>
+              </section>
+
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>周度拆解</h3>
+                  <p>把这个月拆成自然周。</p>
+                </div>
+                <div id="monthly-week-list" class="week-list"></div>
+              </section>
+            </div>
+
+            <div class="report-grid">
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>每日流水</h3>
+                  <p>看每天的收支波动。</p>
+                </div>
+                <div id="monthly-daily-list" class="daily-list"></div>
+              </section>
+
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>近六个月列表</h3>
+                  <p>补充查看跨月变化。</p>
+                </div>
+                <div id="trend-list" class="trend-list"></div>
+              </section>
+            </div>
+
+            <section class="report-block">
+              <div class="block-head">
+                <h3>本月账目明细</h3>
+                <p>核对本月所有原始记录。</p>
+              </div>
+              <div id="monthly-records-list" class="report-records-list"></div>
+            </section>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

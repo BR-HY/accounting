@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>云朵账本 · 周报页</title>
+    <meta name="description" content="云朵账本的周报页，单独展示一周的收支分析、分类排行和明细。" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="weekly">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <main class="shell">
+      <header class="topbar card">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark"></span>
+          <span>云朵账本</span>
+        </a>
+        <nav class="topnav">
+          <a href="./index.html">首页</a>
+          <a href="./ledger.html">记账</a>
+          <a href="./weekly.html" aria-current="page">周报</a>
+          <a href="./monthly.html">月报</a>
+        </nav>
+        <div class="topbar-user">
+          <span id="current-user-chip" class="user-chip">未登录</span>
+          <button id="sync-refresh-btn" class="ghost-btn" type="button">刷新数据</button>
+          <button id="sign-out-btn" class="ghost-btn hidden" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="hero card compact-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Weekly Report</p>
+          <h1>把一周的收支节奏单独拆出来看。</h1>
+          <p class="hero-text">这里不做录入，只专注看本周每日变化、支出分类和账目明细。</p>
+          <article class="hero-sync-card card tone-blue">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Account</p>
+                <h2 id="page-sync-title">未登录</h2>
+              </div>
+              <p class="section-note">周报页只读取当前账号的数据。</p>
+            </div>
+            <p id="page-sync-description" class="hero-text">周报页会读取当前账号在 Supabase 中的账本并生成分析。</p>
+            <div class="sync-metrics">
+              <div>
+                <span>当前账号</span>
+                <strong id="page-current-user">未连接</strong>
+              </div>
+              <div>
+                <span>记录数量</span>
+                <strong id="page-record-count">0</strong>
+              </div>
+            </div>
+          </article>
+        </div>
+        <aside class="hero-panel tone-lavender">
+          <p class="panel-title">周报适合看什么</p>
+          <div class="portal-list">
+            <span class="portal-mini static">哪一天支出最多</span>
+            <span class="portal-mini static">本周净额是正还是负</span>
+            <span class="portal-mini static">哪类支出最突出</span>
+          </div>
+        </aside>
+      </section>
+
+      <section id="guest-panel" class="guest-panel card tone-lavender">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Gate</p>
+            <h2>请先登录后查看周报</h2>
+          </div>
+          <p class="section-note">回到首页登录，再回来查看周报。</p>
+        </div>
+        <p class="guest-copy">登录后，这个页面会自动读取当前账号在 Supabase 里的记录并生成本周分析。</p>
+        <a class="ghost-btn link-btn" href="./index.html">回首页登录</a>
+      </section>
+
+      <section id="app-shell" class="app-shell hidden">
+        <section class="card report-shell">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Weekly</p>
+              <h2>周报</h2>
+            </div>
+            <p class="section-note">只看一周，节奏会更清楚。</p>
+          </div>
+
+          <section class="report-panel">
+            <div class="report-toolbar">
+              <button id="weekly-prev-btn" class="ghost-btn" type="button">上一周</button>
+              <strong id="weekly-range" class="report-range">--</strong>
+              <button id="weekly-next-btn" class="ghost-btn" type="button">下一周</button>
+            </div>
+
+            <div id="weekly-summary" class="report-summary-grid"></div>
+
+            <div class="report-grid">
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>每日收支</h3>
+                  <p>按周一到周日看每天变化。</p>
+                </div>
+                <div id="weekly-daily-list" class="daily-list"></div>
+              </section>
+
+              <section class="report-block">
+                <div class="block-head">
+                  <h3>分类排行</h3>
+                  <p>只统计本周支出。</p>
+                </div>
+                <div id="weekly-category-list" class="breakdown-list"></div>
+              </section>
+            </div>
+
+            <section class="report-block">
+              <div class="block-head">
+                <h3>本周账目明细</h3>
+                <p>逐条核对本周记录。</p>
+              </div>
+              <div id="weekly-records-list" class="report-records-list"></div>
+            </section>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
